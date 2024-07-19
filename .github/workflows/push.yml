@@ -25,8 +25,8 @@ jobs:
 
     - name: Debug - Check Environment Variables
       run: |
-        echo "FIGMA_FILE_URL is set: ${{ env.FIGMA_FILE_URL }}"
-        echo "FIGMA_TOKEN is set: ${{ env.FIGMA_TOKEN }}"
+        echo "FIGMA_FILE_URL is set: ${{ secrets.FIGMA_FILE_URL }}"
+        echo "FIGMA_TOKEN is set: ${{ secrets.FIGMA_TOKEN }}"
 
     - name: Configure Yarn
       run: yarn config set "strict-ssl" false
@@ -39,8 +39,8 @@ jobs:
       with:
         args: "format=svg outputDir=./src/"
       env:
-        FIGMA_FILE_URL: ${{ env.FIGMA_FILE_URL }}
-        FIGMA_TOKEN: ${{ env.FIGMA_TOKEN }}
+        FIGMA_FILE_URL: ${{ secrets.FIGMA_FILE_URL }}
+        FIGMA_TOKEN: ${{ secrets.FIGMA_TOKEN }}
 
     - name: Generate files
       run: yarn generate
