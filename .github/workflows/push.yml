@@ -3,65 +3,60 @@ on:
   push:
     branches:
     - master
-    # 如果需要，可以取消注释以下行来限制触发条件
-    # paths:
-    #   - package.json
+
 jobs:
   icon_automation:
     name: figma icon automation
     runs-on: ubuntu-latest
-    env:
-      FIGMA_FILE_URL: "https://www.figma.com/design/BLDKl9ojyEdIHQz2Ym35dv/test"
-      FIGMA_TOKEN: "figd_xdUzMXtJJ5cdKE04_QBkG-P59OH0yL5A6EdYgdiQ"
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-
+    
     - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '20.x'  # 更新到最新的 LTS Node.js 版本
-
+        node-version: '20.x'
+    
     - name: Debug - Check Environment Variables
       run: |
-        echo "FIGMA_FILE_URL is set: https://www.figma.com/design/BLDKl9ojyEdIHQz2Ym35dv/test"
-        echo "FIGMA_TOKEN is set: figd_xdUzMXtJJ5cdKE04_QBkG-P59OH0yL5A6EdYgdiQ"
-
+        echo "FIGMA_FILE_URL is set: ${{ secrets.FIGMA_FILE_URL }}"
+        echo "FIGMA_TOKEN is set: ${{ secrets.FIGMA_TOKEN }}"
+    
     - name: Configure Yarn
       run: yarn config set "strict-ssl" false
-
+    
     - name: Install dependencies
       run: yarn install
-
+    
     - name: Figma Action
       uses: primer/figma-action@v1.0.0-alpha.2
       with:
         args: "format=svg outputDir=./src/"
       env:
-        # FIGMA_FILE_URL: "https://www.figma.com/design/BLDKl9ojyEdIHQz2Ym35dv/test"
-        FIGMA_TOKEN: "figd_xdUzMXtJJ5cdKE04_QBkG-P59OH0yL5A6EdYgdiQ"
-
+        FIGMA_FILE_URL: ${{ secrets.FIGMA_FILE_URL }}
+        FIGMA_TOKEN: ${{ secrets.FIGMA_TOKEN }}
+    
     - name: Generate files
       run: yarn generate
-
+    
     - name: Build bundle
       run: yarn build:bundle
-
+    
     - name: Setup NPM authentication
       run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTH_TOKEN }}" > ~/.npmrc
-
+    
     - name: Publish to NPM
       run: yarn publish
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
-
+    
     - name: Build project
       run: yarn build
-
+    
     - name: Deploy to GitHub Pages
       uses: crazy-max/ghaction-github-pages@v3
       with:
         build_dir: docs
       env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }} 
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
