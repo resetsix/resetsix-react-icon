@@ -11,8 +11,8 @@ jobs:
     name: figma icon automation
     runs-on: ubuntu-latest
     env:
-      FIGMA_FILE_URL: ${{ secrets.FIGMA_FILE_URL }}
-      FIGMA_TOKEN: ${{ secrets.FIGMA_TOKEN }}
+      FIGMA_FILE_URL: "https://www.figma.com/design/BLDKl9ojyEdIHQz2Ym35dv/test"
+      FIGMA_TOKEN: "figd_xdUzMXtJJ5cdKE04_QBkG-P59OH0yL5A6EdYgdiQ"
     
     steps:
     - name: Checkout code
@@ -25,8 +25,8 @@ jobs:
 
     - name: Debug - Check Environment Variables
       run: |
-        echo "FIGMA_FILE_URL is set: ${{ secrets.FIGMA_FILE_URL }}"
-        echo "FIGMA_TOKEN is set: ${{ secrets.FIGMA_TOKEN }}"
+        echo "FIGMA_FILE_URL is set: https://www.figma.com/design/BLDKl9ojyEdIHQz2Ym35dv/test"
+        echo "FIGMA_TOKEN is set: figd_xdUzMXtJJ5cdKE04_QBkG-P59OH0yL5A6EdYgdiQ"
 
     - name: Configure Yarn
       run: yarn config set "strict-ssl" false
@@ -39,8 +39,8 @@ jobs:
       with:
         args: "format=svg outputDir=./src/"
       env:
-        # FIGMA_FILE_URL: ${{ secrets.FIGMA_FILE_URL }}
-        FIGMA_TOKEN: ${{ secrets.FIGMA_TOKEN }}
+        # FIGMA_FILE_URL: "https://www.figma.com/design/BLDKl9ojyEdIHQz2Ym35dv/test"
+        FIGMA_TOKEN: "figd_xdUzMXtJJ5cdKE04_QBkG-P59OH0yL5A6EdYgdiQ"
 
     - name: Generate files
       run: yarn generate
