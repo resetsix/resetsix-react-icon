@@ -6,7 +6,6 @@ on:
     # 如果需要，可以取消注释以下行来限制触发条件
     # paths:
     #   - package.json
-
 jobs:
   icon_automation:
     name: figma icon automation
@@ -17,12 +16,12 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Setup Node.js
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v3
       with:
-        node-version: '14.x'  # 更新到更新的 Node.js 版本
+        node-version: '20.x'  # 更新到最新的 LTS Node.js 版本
 
     - name: Debug - Check Environment Variables
       run: |
@@ -61,8 +60,8 @@ jobs:
       run: yarn build
 
     - name: Deploy to GitHub Pages
-      uses: crazy-max/ghaction-github-pages@v2
+      uses: crazy-max/ghaction-github-pages@v3
       with:
         build_dir: docs
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # 使用内置的 GITHUB_TOKEN
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }} 
