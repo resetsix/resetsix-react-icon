@@ -5,8 +5,13 @@ const Figma = require("figma-js");
 const PQueue = require("p-queue");
 require("dotenv").config();
 
+process.env.HTTP_PROXY = '';
+process.env.HTTPS_PROXY = '';
+
 const FIGMA_TOKEN = process.env.FIGMA_TOKEN;
-const FIGMA_FILE_URL = "https://www.figma.com/file/BLDKl9ojyEdIHQz2Ym35dv/test";
+const FIGMA_FILE_URL = process.env.FIGMA_FILE_URL;
+// const FIGMA_FILE_URL = "https://www.figma.com/file/BLDKl9ojyEdIHQz2Ym35dv/test";
+const BATCH_SIZE = 100; // 新增：定义批处理大小
 
 if (!FIGMA_TOKEN) {
     throw Error("Cannot find FIGMA_TOKEN in process! Please check your .env file.");
@@ -80,19 +85,33 @@ client
     })
     .then((components) => {
         console.log("Getting export URLs for components");
-        return client
-            .fileImages(fileId, {
-                format: options.format,
-                ids: Object.keys(components),
-                scale: options.scale,
-            })
-            .then(({ data }) => {
-                console.log("Export URLs received");
-                for (const id of Object.keys(data.images)) {
-                    components[id].image = data.images[id];
-                }
-                return components;
+        const componentIds = Object.keys(components);
+        const batches = [];
+        
+        for (let i = 0; i < componentIds.length; i += BATCH_SIZE) {
+            const batch = componentIds.slice(i, i + BATCH_SIZE);
+            batches.push(batch);
+        }
+
+        return batches.reduce((promise, batch) => {
+            return promise.then((result) => {
+                return client.fileImages(fileId, {
+                    format: options.format,
+                    ids: batch,
+                    scale: options.scale,
+                }).then(({ data }) => {
+                    console.log(`Received export URLs for ${batch.length} components`);
+                    Object.assign(result, data.images);
+                    return result;
+                });
             });
+        }, Promise.resolve({})).then((images) => {
+            console.log("All export URLs received");
+            for (const id of Object.keys(images)) {
+                components[id].image = images[id];
+            }
+            return components;
+        });
     })
     .then((components) => {
         console.log("Ensuring output directory exists");
