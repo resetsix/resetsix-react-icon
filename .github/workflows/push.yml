@@ -25,8 +25,8 @@ jobs:
 
     - name: Debug - Check Environment Variables
       run: |
-        echo "FIGMA_FILE_URL is set: ${{ env.FIGMA_FILE_URL != '' }}"
-        echo "FIGMA_TOKEN is set: ${{ env.FIGMA_TOKEN != '' }}"
+        echo "FIGMA_FILE_URL is set: ${{ env.FIGMA_FILE_URL }}"
+        echo "FIGMA_TOKEN is set: ${{ env.FIGMA_TOKEN }}"
 
     - name: Configure Yarn
       run: yarn config set "strict-ssl" false
