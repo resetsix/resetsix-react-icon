@@ -3,39 +3,66 @@ on:
   push:
     branches:
     - master
-    # file paths to consider in the event. Optional; defaults to all.
+    # 如果需要，可以取消注释以下行来限制触发条件
     # paths:
-      # - package.json
+    #   - package.json
 
 jobs:
   icon_automation:
     name: figma icon automation
     runs-on: ubuntu-latest
+    env:
+      FIGMA_FILE_URL: ${{ secrets.FIGMA_FILE_URL }}
+      FIGMA_TOKEN: ${{ secrets.FIGMA_TOKEN }}
+    
     steps:
-    - uses: actions/checkout@v1
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-    - uses: actions/setup-node@v1
+    - name: Setup Node.js
+      uses: actions/setup-node@v2
       with:
-        node-version: '10.x'
-    - run: yarn config set "strict-ssl" false
-    - run: yarn install
+        node-version: '14.x'  # 更新到更新的 Node.js 版本
+
+    - name: Debug - Check Environment Variables
+      run: |
+        echo "FIGMA_FILE_URL is set: ${{ env.FIGMA_FILE_URL != '' }}"
+        echo "FIGMA_TOKEN is set: ${{ env.FIGMA_TOKEN != '' }}"
+
+    - name: Configure Yarn
+      run: yarn config set "strict-ssl" false
+
+    - name: Install dependencies
+      run: yarn install
+
     - name: Figma Action
       uses: primer/figma-action@v1.0.0-alpha.2
       with:
         args: "format=svg outputDir=./src/"
       env:
-        FIGMA_FILE_URL: ${{ secrets.FIGMA_FILE_URL }}
-        FIGMA_TOKEN: ${{ secrets.FIGMA_TOKEN }}
-    - run: yarn generate
-    - run: yarn build:bundle
-    - run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTH_TOKEN }}" > ~/.npmrc
-    - run: yarn publish
+        FIGMA_FILE_URL: ${{ env.FIGMA_FILE_URL }}
+        FIGMA_TOKEN: ${{ env.FIGMA_TOKEN }}
+
+    - name: Generate files
+      run: yarn generate
+
+    - name: Build bundle
+      run: yarn build:bundle
+
+    - name: Setup NPM authentication
+      run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_AUTH_TOKEN }}" > ~/.npmrc
+
+    - name: Publish to NPM
+      run: yarn publish
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
-    - run: yarn build
-    - name: GitHub Pages
-      uses: crazy-max/ghaction-github-pages@v1.2.5
+
+    - name: Build project
+      run: yarn build
+
+    - name: Deploy to GitHub Pages
+      uses: crazy-max/ghaction-github-pages@v2
       with:
         build_dir: docs
       env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # 使用内置的 GITHUB_TOKEN
